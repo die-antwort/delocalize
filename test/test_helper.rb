@@ -104,3 +104,8 @@ ActiveRecord::Base.connection.create_table :products do |t|
   t.integer :count
   t.decimal :some_value_with_default, :default => 13.37, :precision => 20, :scale => 2
 end
+
+# Fix "undefined method `env_config' for nil:NilClass" errors thrown in 
+# action_dispatch/testing/test_request.rb:15
+Rails.application = Class.new{ def env_config; {}; end }.new
+
