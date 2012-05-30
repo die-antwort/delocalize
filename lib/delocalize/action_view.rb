@@ -21,11 +21,15 @@ ActionView::Helpers::InstanceTag.class_eval do
                 object.blank? ||
                 options[:value].present? ||
                 field_type == 'hidden' ||
-                (object.respond_to?(:errors) && object.errors[method_name].any?) ||
+                # FIXME: See https://github.com/clemens/delocalize/issues/45
+                #  (object.respond_to?(:errors) && object.errors[method_name].any?) ||
                 !(object.respond_to?(:delocalizes?) && object.delocalizes?(method_name))
 
     return original_to_input_field_tag(field_type, options) if do_return
 
+    # FIXME: Should use "#{method_name}_before_type_cast" here, otherwise the test
+    # "doesn't convert the value if field has errors" fails. Mongoid doesn't support
+    # before_type_cast, though :-(
     value = object.send(method_name)
     type = object.delocalize_type_for(method_name)
 
