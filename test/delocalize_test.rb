@@ -313,6 +313,7 @@ class DelocalizeActionViewTest < ActionView::TestCase
   end
 
   test "doesn't convert the value if field has errors" do
+    pending "This seems not to be possible using Mongoid"
     @product = ProductWithValidation.new(:price => 'this is not a number')
     @product.valid?
     assert_dom_equal %(<div class="field_with_errors"><input id="product_price" name="product[price]" size="30" type="text" value="this is not a number" /></div>),
