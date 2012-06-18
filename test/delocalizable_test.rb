@@ -11,23 +11,23 @@ class DelocalizableTest < ActiveSupport::TestCase
   end
 
   test "stores the delocalizable fields" do
-    @delocalizable_class.delocalize :foo => :number, :bar => :time
+    @delocalizable_class.delocalize :foo => :number, :bar => {:type => :time }
     assert_equal [:foo, :bar], @delocalizable_class.delocalizable_fields
   end
 
   test "stores the delocalizable fields as symbols" do
-    @delocalizable_class.delocalize 'foo' => 'number', 'bar' => 'time'
+    @delocalizable_class.delocalize 'foo' => 'number', 'bar' => {:type => 'time'}
     assert_equal [:foo, :bar], @delocalizable_class.delocalizable_fields
   end
 
   test "stores the delocalizable fields without overriding existing ones" do
-    @delocalizable_class.delocalize :foo => :number, :bar => :time
+    @delocalizable_class.delocalize :foo => :number, :bar => {:type => :time}
     @delocalizable_class.delocalize :baz => :date
     assert_equal [:foo, :bar, :baz], @delocalizable_class.delocalizable_fields
   end
 
   test "stores the delocalizable fields without duplicates" do
-    @delocalizable_class.delocalize :foo => :number, :bar => :time
+    @delocalizable_class.delocalize :foo => :number, :bar => {:type => :time}
     @delocalizable_class.delocalize :foo => :date
     assert_equal [:foo, :bar], @delocalizable_class.delocalizable_fields
   end
@@ -42,13 +42,13 @@ class DelocalizableTest < ActiveSupport::TestCase
   end
 
   test "stores conversions" do
-    @delocalizable_class.delocalize :foo => :number, :bar => :time
+    @delocalizable_class.delocalize :foo => :number, :bar => {:type => :time}
     assert_equal :number, @delocalizable_class.delocalize_conversions[:foo]
     assert_equal :time, @delocalizable_class.delocalize_conversions[:bar]
   end
 
   test "stores conversions as symbols" do
-    @delocalizable_class.delocalize 'foo' => 'number', 'bar' => 'time'
+    @delocalizable_class.delocalize 'foo' => 'number', 'bar' => {:type => 'time'}
     assert_equal :number, @delocalizable_class.delocalize_conversions[:foo]
     assert_equal :time, @delocalizable_class.delocalize_conversions[:bar]
   end
@@ -66,6 +66,17 @@ class DelocalizableTest < ActiveSupport::TestCase
     assert_equal({:foo => :number}, @delocalizable_class.delocalize_conversions)
     assert_equal({:foo => :date}, foo_class.delocalize_conversions)
     assert_equal({:foo => :number, :bar => :time}, bar_class.delocalize_conversions)
+  end
+
+  test "stores options" do
+    @delocalizable_class.delocalize :foo => {:type => :number, :any_option => 23}
+    assert_equal({:any_option => 23}, @delocalizable_class.delocalize_options[:foo])
+  end
+
+  test "stores options and overrides previous settings" do
+    @delocalizable_class.delocalize :foo => {:type => :number, :any_option => 23}
+    @delocalizable_class.delocalize :foo => {:type => :date, :other_option => 42}
+    assert_equal({:other_option => 42}, @delocalizable_class.delocalize_options[:foo])
   end
 
   test "defines attribute writers" do
